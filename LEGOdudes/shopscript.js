@@ -1,3 +1,4 @@
+
 document.getElementById("cart-button").addEventListener("click", function() {
     document.getElementById("cart").classList.toggle("hidden")
 })
@@ -21,11 +22,68 @@ function fetchProducts() {
 
 fetchProducts()
 
+//Generer handlevogn
+function showCart() {
+    // unike produkter
+    let uniqueItems = new Set(cart)
+    let uniqueArray = [...uniqueItems] //tre prikker: kalles Spread (spre ut verdier i kontekst de befinner seg, kommaseparerte verdier)
+    //oversikt over antall per produkt 
+    let cartItems = [] 
+    //viktig
+    uniqueArray.map(item => {
+         //filter returnerer en array  
+        cartItems.push({prodid: item, quantity: cart.filter(i => i === item).length})
+    })
+
+    // Gå gjennom cartItems for å lage html til handlekurven og regne ut totalpris
+    let cartHTML = ""
+    let totalPrice = 0
+
+    cartItems.map(ci => {
+        //Hente produktinformasjon
+        let product = products.find(i => i.prodid === ci.prodid) 
+        // skrive ut HTML
+        cartHTML += `<tr>
+                    <td class="title">${product.title}</td>
+                    <td class="price">${product.price}</td>
+                    <td class="quantity">${ci.quantity}</td>
+                    <td class="delete"><button onClick="deleteFromCart(${product.prodid})">X</button></td>
+                </tr>`
+        
+        //Summere totalpris
+        totalPrice += Number(product.price) * Number(ci.quantity)
+    })
+
+    if(cart-length === 0) {
+        cartHTML += "<tr><td>Ingen varer i handlevognen.</td></tr>"
+    }
+
+    //Oppdater HTML-elementer
+    document.getElementById("cart-items").innerHTML = cartHTML 
+    document.getElementById("total-price").innerHTML = totalPrice 
+    document.getElementById("cart-quantity").innerHTML = cart.length
+}
+
+
+//Slette fra handlevogn
+function deleteFromCart(prodid) {
+    let deleteIndex = cart.indexOf(prodid)
+    if(deleteIndex > -1) {
+        cart.splice(deleteIndex, 1)
+    }
+    //Oppdater handlevisning:
+    showCart()
+}
+
+
 // Legg til i handlevogn
 
 function addToCart(prodid) {
     console.log("Legg til produkt med id: " + prodid)
     cart.push(prodid)
     console.log(cart)
-    document.getElementById("cart-quantity").innerHTML = cart.length
+    
+
+    //Oppdater handlevisning:
+    showCart()
 }
